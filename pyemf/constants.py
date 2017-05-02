@@ -259,3 +259,15 @@ ICM_MAX   = 3
 MWT_IDENTITY      = 1
 MWT_LEFTMULTIPLY  = 2
 MWT_RIGHTMULTIPLY = 3
+
+# MetafileVersion
+METAVERSION100 = 0x0100  # DIBs are not supported
+METAVERSION300 = 0x0300  # DIBs are supported
+
+ETO_OPAQUE = 0x0002       # background colour should be used to fill rclBounds
+ETO_CLIPPED = 0x0004      # the text should be clipped to rclBounds
+ETO_GLYPH_INDEX = 0x0010  # placement of characters is provided in the dx array
+ETO_RTLREADING = 0x0080   # text must be output in right-to-left reading order
+ETO_NUMERICSLOCAL = 0x0400  # use locale-specific digits to display numbers
+ETO_NUMERICSLATIN = 0x0800  # use European digits to display numbers
+ETO_PDY = 0x2000            # horizontal and vertical offsets are provided in dx

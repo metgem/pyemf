@@ -25,11 +25,11 @@ import struct
 from .compat import BytesIO, cunicode
 
 
-def _round4(num):
-    """Round to the nearest multiple of 4 greater than or equal to the
-    given number.  EMF records are required to be aligned to 4 byte
+def _roundn(num, n):
+    """Round to the nearest multiple of n greater than or equal to the
+    given number.  EMF records are required to be aligned to n byte
     boundaries."""
-    return ((num + 3) // 4) * 4
+    return ((num + n - 1) // n) * n
 
 # - Field, Record, and related classes: a way to represent data
 # more advanced than using just import struct
@@ -355,10 +355,11 @@ class Points(Tuples):
 
 class EMFString(Field):
 
-    def __init__(self, default=None, size=2, num=1, offset=None):
+    def __init__(self, default=None, size=2, num=1, offset=None, pad=4):
         # Note the two bytes per unicode char
         Field.__init__(self, None, size=size, num=num, offset=offset)
         self.setDefault(default)
+        self.pad = pad  # parameter for _roundn
 
     def calcNumBytes(self, obj, name):
         if self.hasNumReference():
@@ -369,7 +370,7 @@ class EMFString(Field):
                 # to store it
                 txt = txt.encode('utf-16le')
             # EMF requires that strings be stored as multiples of 4 bytes
-            extra = _round4(len(txt)) - len(txt)
+            extra = _roundn(len(txt), self.pad) - len(txt)
             return len(txt) + extra
         else:
             # this is a fixed length string, so we know the length already.
@@ -392,7 +393,7 @@ class EMFString(Field):
 
         size = self.getNumBytes(obj)
         txt = data[ptr:ptr + size]
-        size = _round4(len(txt))
+        size = _roundn(len(txt), self.pad)
         if self.size == 2:
             txt = txt.decode('utf-16le')  # Now is a unicode string
         if self.debug:
@@ -407,7 +408,8 @@ class EMFString(Field):
         if isinstance(txt, cunicode):
             txt = txt.encode('utf-16le')
         if self.hasNumReference():
-            extra = _round4(len(txt)) - len(txt)  # must be multiple of 4
+            # must be multiple of pad (4)
+            extra = _roundn(len(txt), self.pad) - len(txt)
             if extra > 0:
                 txt += b'\0' * extra
         else:

@@ -275,6 +275,20 @@ class _EMR_UNKNOWN(Record):
         saved in the object array for later recall by SelectObject."""
         return False
 
+    def isCreateObject(self):
+        """Returns true if this record represents an operation that creates
+        an object."""
+        return False
+
+    def isDeleteObject(self):
+        """Returns true if this record represents an operation that deletes
+        an object."""
+        return False
+
+    def isEOF(self):
+        """Returns true if this record represents an end-of-file marker."""
+        return False
+
     def setBounds(self, bounds):
         """Set bounds of object.  Depends on naming convention always
         defining the bounding rectangle as
@@ -288,7 +302,7 @@ class _EMR_UNKNOWN(Record):
             return self.rclBounds
         return None
 
-    def unserialize(self, fh, already_read, itype=-1, nsize=-1):
+    def unserialize(self, fh, already_read, itype=-1, nsize=-1, ptr=-1):
         """Read data from the file object and, using the format
         structure defined by the subclass, parse the data and store it
         in self.values[] list."""
@@ -298,12 +312,18 @@ class _EMR_UNKNOWN(Record):
             self.iType = itype
             self.nSize = nsize
         else:
-            (self.iType, self.nSize) = struct.unpack("<ii", already_read)
+            (self.iType, self.nSize) = self.readHdr(already_read)
+        self.data = already_read
         if self.nSize > prevlen:
-            self.data = already_read + fh.read(self.nSize - prevlen)
-            last = self.format.unpack(self.data, self, prevlen)
-            if self.nSize > last:
-                self.unserializeExtra(self.data[last:])
+            self.data += fh.read(self.nSize - prevlen)
+        if ptr < 0:
+            ptr = prevlen
+        last = self.format.unpack(self.data, self, ptr)
+        if self.nSize > last:
+            self.unserializeExtra(self.data[last:])
+
+    def readHdr(self, already_read):
+        return struct.unpack("<ii", already_read)
 
     def unserializeExtra(self, data):
         """Hook for subclasses to handle extra data in the record that
@@ -314,29 +334,24 @@ class _EMR_UNKNOWN(Record):
     def serialize(self, fh):
         try:
             # print "packing!"
-            bytes = self.format.pack(self.values, self, 8)
+            bytes = self.format.pack(self.values, self, self.hdrLen())
             # fh.write(struct.pack(self.format.fmt,*self.values))
         except struct.error:
             print("!!!!!Struct error:", end=' ')
             print(self)
             raise
         before = self.nSize
-        self.nSize = 8 + len(bytes) + self.sizeExtra()
+        self.nSize = self.hdrLen() + len(bytes) + self.sizeExtra()
         if self.verbose and before != self.nSize:
             print("resize: before=%d after=%d" % (before, self.nSize), end=' ')
             print(self)
-        if self.nSize % 4 != 0:
-            print("size error--must be divisible by 4. before=%d after=%d calcNumBytes=%d extra=%d" %
-                  (before, self.nSize, len(bytes), self.sizeExtra()))
-            for name in self.format.names:
-                fmt = self.format.fmtmap[name]
-                size = fmt.calcNumBytes(self, name)
-                print("  name=%s size=%s" % (name, size))
-            print(self)
-            raise TypeError
-        fh.write(struct.pack("<ii", self.iType, self.nSize))
+        self.verifySize(before, len(bytes))
+        self.writeHdr(fh)
         fh.write(bytes)
         self.serializeExtra(fh)
+
+    def writeHdr(self, fh):
+        fh.write(struct.pack("<ii", self.iType, self.nSize))
 
     def serializeExtra(self, fh):
         """This is for special cases, like writing text or lists.  If
@@ -347,13 +362,20 @@ class _EMR_UNKNOWN(Record):
 
     def resize(self):
         before = self.nSize
-        self.nSize = 8 + self.format.calcNumBytes(self) + self.sizeExtra()
+        self.nSize = self.hdrLen() + self.format.calcNumBytes(self) + self.sizeExtra()
         if self.verbose and before != self.nSize:
             print("resize: before=%d after=%d" % (before, self.nSize), end=' ')
             print(self)
+        self.verifySize(before, self.format.calcNumBytes(self))
+        return self.nSize
+
+    def hdrLen(self):
+        return 8
+
+    def verifySize(self, before, calcSize):
         if self.nSize % 4 != 0:
             print("size error--must be divisible by 4. before=%d after=%d calcNumBytes=%d extra=%d" %
-                  (before, self.nSize, self.format.calcNumBytes(self), self.sizeExtra()))
+                  (before, self.nSize, calcSize, self.sizeExtra()))
             for name in self.format.names:
                 fmt = self.format.fmtmap[name]
                 size = fmt.calcNumBytes(self, name)

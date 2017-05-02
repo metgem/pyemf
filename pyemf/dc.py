@@ -120,7 +120,7 @@ class _DC:
     def getBounds(self, header):
         """Extract the dimensions from an _EMR._HEADER record."""
 
-        self.setPhysicalSize(header.rclFrame)
+        self.setPhysicalSize(header.rclBounds)
         if header.szlMicrometers[0] > 0:
             self.ref_width = header.szlMicrometers[0] / 10
             self.ref_height = header.szlMicrometers[1] / 10
