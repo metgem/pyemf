@@ -21,9 +21,29 @@
 from __future__ import print_function, division
 
 import struct
+import warnings
 
 from .compat import BytesIO, cunicode
 
+def struct_pack(fmt, *args):
+    """ handle conversion of float to int (py3.7 test-suite) """
+    new_args = []
+    arg_toks = 'cbB?hHiIlLqQfdspP'
+    int_toks = 'bBhHiIlLqQP'
+    i = -1
+    for c in fmt:
+        if c in arg_toks:
+            i += 1
+            arg = args[i]
+            if c in int_toks:
+                if not isinstance(arg, int) and abs(int(arg) - arg)/float(arg) > 1e-14:
+                    warnings.warn("Information lost during integer conversion")
+                new_args.append(int(arg))
+            else:
+                new_args.append(arg)
+    assert i == len(args) - 1, "bug in algo..."
+    assert len(args) == len(new_args)
+    return struct.pack(fmt, *new_args)
 
 def _roundn(num, n):
     """Round to the nearest multiple of n greater than or equal to the
@@ -147,7 +167,7 @@ class StructFormat(Field):
         return (value, self.size)
 
     def pack(self, obj, name, value):
-        return struct.pack(self.fmt, value)
+        return struct_pack(self.fmt, value)
 
     def str_color(self, val):
         return "red=0x%02x green=0x%02x blue=0x%02x" % ((val & 0xff), ((val & 0xff00) >> 8), ((val & 0xff0000) >> 16))
@@ -275,7 +295,7 @@ class List(Field):
         fh = BytesIO()
         size = 0
         for val in value:
-            fh.write(struct.pack(self.fmt, val))
+            fh.write(struct_pack(self.fmt, val))
         return fh.getvalue()
 
     def getDefault(self):
@@ -331,7 +351,7 @@ class Tuples(Field):
         if self.debug:
             print("pack: value=%s" % (str(value)))
         for val in value:
-            fh.write(struct.pack(self.fmt, *val))
+            fh.write(struct_pack(self.fmt, *val))
         return fh.getvalue()
 
     def getDefault(self):

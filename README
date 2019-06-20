@@ -1,3 +1,13 @@
+This is a fork of a forked version of pyemf. But I wouldn't bother, just do:
+
+> fig.savefig('myfig.svg')
+
+$ inkscape --file myfig.svg --export-emf myfig.emf
+
+/Björn
+
+----------------------------------------------------------------------------
+
 This is a forked version of pyemf with support for Python 3.3+. It
 should also run under Python 2.6 and 2.7. Patches are welcome. It
 would be nice to clean up the file layout.

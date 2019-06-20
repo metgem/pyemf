@@ -12,7 +12,7 @@ import copy
 __version__ = "1.0.0"
 __author__ = "Rob McMullen"
 __author_email__ = "robm@users.sourceforge.net"
-__url__ = "http://pyemf.sourceforge.net/structrecord"
+__url__ = "http://github.com/6tudent/"
 __download_url__ = "http://sourceforge.net/project/showfiles.php?group_id=148144"
 __description__ = "Parse record-based binary files into Python objects"
 __keywords__ = "binary, record, struct, pack, unpack"
@@ -229,7 +229,7 @@ class List(Member):
             ptr=offset
         else:
             return (values,0)
-        
+
         num=self.getNum(obj)
         while num>0:
             values.append(struct.unpack(self.fmt,data[ptr:ptr+self.size])[0])
@@ -275,7 +275,7 @@ class Tuples(Member):
             ptr=offset
         else:
             return (values,0)
-        
+
         num=self.getNum(obj)
         if debug: print "unpack: name=%s num=%d ptr=%d datasize=%d" % (name,num,ptr,len(data))
         while num>0:
@@ -321,7 +321,7 @@ def FormatFactory(fmt):
 
 class RecordFormat:
     default_endian="<"
-    
+
     def __init__(self,typedef):
         self.typedef=typedef
         self.minstructsize=0 # minimum structure size (variable entries not counted)
@@ -331,7 +331,7 @@ class RecordFormat:
         self.default={}
 
         self.names=[] # order of names in record
-        
+
         self.debug=0
 
         self.fmt=''
@@ -409,7 +409,7 @@ class RecordFormat:
         fh=StringIO()
         size=0
         output={}
-        
+
         # First, create all the output bytes
         for name in self.names:
             fmt=self.fmtmap[name]
@@ -438,9 +438,9 @@ class RecordFormat:
                 if debug: print "pack: %s has num %s, was=%d now=%d" % (name,refname,values[refname],newnum)
                 values[refname]=newnum
                 output[refname]=self.fmtmap[refname].pack(obj,refname,values[refname])
-            
+
             size+=len(output[name])
-            
+
         # Finally, write all the output bytes to the filehandle
         for name in self.names:
             fh.write(output[name])
@@ -461,10 +461,10 @@ class RecordFormat:
 
 class Record(object):
     """baseclass for binary records"""
-    
+
     format=None
     typedef=()
-    
+
     def __init__(self):
         # if we've never seen this class before, create a new format.
         # Note that subclasses of classes that we have already seen
@@ -506,4 +506,3 @@ class Record(object):
                 self.__dict__[name]=value
         except IndexError:
             raise IndexError("name=%s index=%d values=%s" % (name,index,str(v)))
-
