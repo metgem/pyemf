@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 import pyemf
 
 width=8
@@ -29,7 +33,7 @@ y+=size
 emf.Pie(x,y,x+size,y+size,x,y,x,y+size)
 
 x+=size
-emf.Pie(x,y,x+size,y+size,x,y+(size/2),x,y+(size/2))
+emf.Pie(x,y,x+size,y+size,x,y+(old_div(size,2)),x,y+(old_div(size,2)))
 print("after Pie")
 
 

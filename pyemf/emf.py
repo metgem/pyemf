@@ -20,6 +20,8 @@
 
 from __future__ import print_function, division
 
+from builtins import range
+from builtins import object
 import struct
 
 from .constants import *
@@ -30,7 +32,7 @@ from .compat import *
 from .record import _EMR_UNKNOWN
 
 
-class EMF:
+class EMF(object):
 
     """
 Reference page of the public API for enhanced metafile creation.  See

@@ -2,6 +2,9 @@
 
 from __future__ import print_function
 
+from builtins import bytes
+from builtins import range
+from builtins import object
 import os,sys
 import glob
 import filecmp
@@ -34,7 +37,7 @@ def dumpfile(filename):
         fh=open(filename+".hex", "w")
         fh.write(result)
 
-class Comparison:
+class Comparison(object):
     def __init__(self,verbose=False):
         self.verbose=verbose
         self.total=0

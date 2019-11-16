@@ -20,10 +20,11 @@
 
 from __future__ import print_function, division
 
+from builtins import object
 from .utils import RGB
 
 
-class _DC:
+class _DC(object):
 
     """Device Context state machine.  This is used to simulate the
     state of the GDI buffer so that some user commands can return

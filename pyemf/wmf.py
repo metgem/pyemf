@@ -21,12 +21,14 @@
 
 from __future__ import print_function, division
 
+from builtins import range
+from builtins import object
 from .constants import *
 from .dc import _DC
 from . import meta
 
 
-class WMF:
+class WMF(object):
 
     """
 Reference page of the public API for WMF metafile creation.  See

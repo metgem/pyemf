@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import str
 import pyemf
 
 def path(emf,text,x,y,size=300):

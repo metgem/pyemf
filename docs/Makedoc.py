@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
 import os,sys,re,os.path
-from cStringIO import StringIO
+from io import StringIO
 from datetime import date
 from optparse import OptionParser
 from string import Template
@@ -69,7 +72,7 @@ def setnamespace():
             'cvs_version':module.__version__,
             }
         
-        for key,val in defaults.iteritems():
+        for key,val in defaults.items():
             namespace[key]=val
             # print "%s=%s" % (key,val)
     
@@ -165,20 +168,20 @@ if __name__=='__main__':
 
     if options.keyvalue:
         for keyword,value in options.keyvalue:
-            print "keyword=%s value=%s" % (keyword,value)
+            print("keyword=%s value=%s" % (keyword,value))
             remap(keyword,value)
 
     if options.remapkey:
         for key1,key2 in options.remapkey:
             value=namespace[key2]
-            print "keyword=%s value=%s" % (key1,value)
+            print("keyword=%s value=%s" % (key1,value))
             remap(key1,value)
 
     if options.template:
         all=parse(options.template)
 
     if options.printnamespace:
-        print namespace
+        print(namespace)
         sys.exit()
 
     for filename in args:
@@ -187,7 +190,7 @@ if __name__=='__main__':
         else:
             txt=parse(filename)
         if options.outputfile:
-            print 'saving to %s' % options.outputfile
+            print('saving to %s' % options.outputfile)
             all+=txt
         else:
             if filename.endswith('.in'):
@@ -203,5 +206,5 @@ if __name__=='__main__':
         fh.write(all)
         fh.close()
     else:
-        print all
+        print(all)
         

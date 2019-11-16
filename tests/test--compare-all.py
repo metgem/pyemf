@@ -1,31 +1,43 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from builtins import chr
+from builtins import range
+from builtins import object
 import os,sys
 import glob
 import filecmp
 
 import pyemf
 
-FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+is_py3 = sys.version_info[0] == 3
+if is_py3:
+    bchr = lambda x: bytes((x,))
+else:
+    bchr = chr
 
 def dump(fh, length=8):
+    """"Return a hex dump of the file."""
     N=0; result=''
     s=fh.read(length)
     while len(s)>0:
-       hexa = ' '.join(["%02X"%ord(x) for x in s])
-       s = s.translate(FILTER)
-       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-       N+=length
-       s=fh.read(length)
+        hexa = ' '.join(["%02X"%ord(s[i:i+1]) for i in range(len(s))])
+        FILTER=b''.join([ bchr(x) if 32 <= x < 127 else b'.'
+                          for x in range(256) ])
+        s = s.translate(FILTER)
+        result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s.decode('ascii'))
+        N+=length
+        s=fh.read(length)
     return result
 
 def dumpfile(filename):
-    fh=open(filename)
-    result=dump(fh)
-    fh=open(filename+".hex","w")
-    fh.write(result)
+    fh=open(filename, "rb")
+    if fh:
+        result=dump(fh)
+        fh=open(filename+".hex", "w")
+        fh.write(result)
 
-class Comparison:
+class Comparison(object):
     def __init__(self):
         self.verbose=False
         self.total=0
@@ -60,8 +72,9 @@ class Comparison:
             print(e)
             self.failed.append(filename)
             self.show("E")
-            dumpfile(filename)
-            dumpfile(outputfile)
+            if os.path.exists(outputfile):
+                dumpfile(filename)
+                dumpfile(outputfile)
 
     def stats(self):
         print()
@@ -73,7 +86,7 @@ comp=Comparison()
 tests=glob.glob("test-[a-z0-9]*.py")
 tests.sort()
 for filename in tests:
-    #print "Running %s" % test
+    print("Running %s" % filename)
     filename=filename[:-3]+".emf"
     comp.compare(filename)
 

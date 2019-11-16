@@ -2,6 +2,8 @@
 
 # Test polygon fill mode
 
+from __future__ import print_function
+from builtins import str
 import pyemf
 
 def polygon(emf,x,y):

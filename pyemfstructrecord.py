@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import os,sys,re
 import struct
-from cStringIO import StringIO
+from io import StringIO
 import copy
 
 # setup.py requires that these be defined, and the OnceAndOnlyOnce
@@ -47,7 +52,7 @@ class Member(object):
     def calcNumBytes(self,obj,name):
         if isinstance(obj.values[name],list) or isinstance(obj.values[name],tuple):
             size=self.size*len(obj.values[name])
-            if debug: print "  calcNumBytes: size=%d len(obj.values[%s])=%d total=%d" % (self.size,name,len(obj.values[name]),size)
+            if debug: print("  calcNumBytes: size=%d len(obj.values[%s])=%d total=%d" % (self.size,name,len(obj.values[name]),size))
             # also update the linked number, if applicable
         else:
             size=self.size*self.getNum(obj)
@@ -87,7 +92,7 @@ class Member(object):
             offset+=self.offset
         elif obj:
             offset+=getattr(obj,self.offset) # find obj."offset"
-        if debug: print "getting offset for obj=%s, self.offset=%s => offset=%d" % (obj.__class__.__name__,self.offset,offset)
+        if debug: print("getting offset for obj=%s, self.offset=%s => offset=%d" % (obj.__class__.__name__,self.offset,offset))
         return offset
 
     def hasOffsetReference(self):
@@ -174,9 +179,9 @@ class String(Member):
             txt=txt.decode('utf-16') # Now is a unicode string
         if debug:
             try:
-                print "str: '%s'" % str(txt)
+                print("str: '%s'" % str(txt))
             except UnicodeEncodeError:
-                print "<<<BAD UNICODE STRING>>>: '%s'" % repr(txt)
+                print("<<<BAD UNICODE STRING>>>: '%s'" % repr(txt))
         return (txt,size)
 
     def pack(self,obj,name,value):
@@ -260,7 +265,7 @@ class Tuples(Member):
         else:
             fmt=fmt*rank
         Member.__init__(self,fmt,struct.calcsize(fmt),num,offset=offset)
-        if debug: print "Tuples:%s self.size=%d" % (self.__class__.__name__,self.size)
+        if debug: print("Tuples:%s self.size=%d" % (self.__class__.__name__,self.size))
         self.rank=rank
         self.setDefault(default)
 
@@ -277,7 +282,7 @@ class Tuples(Member):
             return (values,0)
 
         num=self.getNum(obj)
-        if debug: print "unpack: name=%s num=%d ptr=%d datasize=%d" % (name,num,ptr,len(data))
+        if debug: print("unpack: name=%s num=%d ptr=%d datasize=%d" % (name,num,ptr,len(data)))
         while num>0:
             values.append(list(struct.unpack(self.fmt,data[ptr:ptr+self.size])))
             ptr+=self.size
@@ -288,7 +293,7 @@ class Tuples(Member):
     def pack(self,obj,name,value):
         fh=StringIO()
         size=0
-        if debug: print "pack: value=%s" % (str(value))
+        if debug: print("pack: value=%s" % (str(value)))
         for val in value:
             fh.write(struct.pack(self.fmt,*val))
         return fh.getvalue()
@@ -319,7 +324,7 @@ def FormatFactory(fmt):
     return fmtobj
 
 
-class RecordFormat:
+class RecordFormat(object):
     default_endian="<"
 
     def __init__(self,typedef):
@@ -345,7 +350,7 @@ class RecordFormat:
         return values
 
     def setFormat(self,typedef,default=None):
-        if self.debug: print "typedef=%s" % str(typedef)
+        if self.debug: print("typedef=%s" % str(typedef))
         if isinstance(typedef,list) or isinstance(typedef,tuple):
             for item in typedef:
                 if len(item)==3:
@@ -355,7 +360,7 @@ class RecordFormat:
                 self.appendFormat(typecode,name,default)
         elif typedef:
             raise AttributeError("format must be a list")
-        if self.debug: print "current struct=%s size=%d\n  names=%s" % (self.fmt,self.minstructsize,self.names)
+        if self.debug: print("current struct=%s size=%d\n  names=%s" % (self.fmt,self.minstructsize,self.names))
 
     def appendFormat(self,typecode,name,defaultvalue):
         if isinstance(typecode,str):
@@ -383,7 +388,7 @@ class RecordFormat:
         for name in self.names:
             fmt=self.fmtmap[name]
             bytes=fmt.calcNumBytes(obj,name)
-            if debug: print "calcNumBytes: %s=%d" % (name,bytes)
+            if debug: print("calcNumBytes: %s=%d" % (name,bytes))
             size+=bytes
         return size
 
@@ -416,8 +421,8 @@ class RecordFormat:
             try:
                 output[name]=fmt.pack(obj,name,values[name])
             except:
-                print "Exception while trying to pack %s for object:" % name
-                print obj
+                print("Exception while trying to pack %s for object:" % name)
+                print(obj)
                 raise
 
             # check if the offset to this parameter needs to be
@@ -426,7 +431,7 @@ class RecordFormat:
             refname=fmt.hasOffsetReference()
             #print output[name]
             if refname and output[name]:
-                if debug: print "pack: %s has offset %s, was=%d now=%d" % (name,refname,values[refname],size+alreadypacked)
+                if debug: print("pack: %s has offset %s, was=%d now=%d" % (name,refname,values[refname],size+alreadypacked))
                 values[refname]=size+alreadypacked
                 output[refname]=self.fmtmap[refname].pack(obj,refname,values[refname])
 
@@ -435,7 +440,7 @@ class RecordFormat:
             #if debug: print output[name]
             if refname and output[name]:
                 newnum=fmt.calcNum(obj,name)
-                if debug: print "pack: %s has num %s, was=%d now=%d" % (name,refname,values[refname],newnum)
+                if debug: print("pack: %s has num %s, was=%d now=%d" % (name,refname,values[refname],newnum))
                 values[refname]=newnum
                 output[refname]=self.fmtmap[refname].pack(obj,refname,values[refname])
 

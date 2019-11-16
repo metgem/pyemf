@@ -20,6 +20,8 @@
 
 from __future__ import print_function, division
 
+from builtins import str
+from builtins import object
 import struct
 
 from .field import Field, StructFormat
@@ -37,7 +39,7 @@ def FormatFactory(fmt):
     return fmtobj
 
 
-class RecordFormat:
+class RecordFormat(object):
     default_endian = "<"
 
     def __init__(self, typedef):

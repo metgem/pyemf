@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 import pyemf
 
 width=8
@@ -34,7 +38,7 @@ emf.SetTextColor((0x80,0x00,0x00))
 for face in fontlist:
 
     emf.Polyline(((90,fonty-fontheight),(1200,fonty-fontheight)))
-    emf.Polyline(((90,fonty-fontheight/2),(1200,fonty-fontheight/2)))
+    emf.Polyline(((90,fonty-old_div(fontheight,2)),(1200,fonty-old_div(fontheight,2))))
     emf.Polyline(((90,fonty),(1200,fonty)))
 
     font = emf.CreateFont( fontheight, 0, 0, 0, pyemf.FW_BOLD, 0, 0, 0,
