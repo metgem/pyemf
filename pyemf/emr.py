@@ -685,6 +685,27 @@ class _ABORTPATH(_EMR_UNKNOWN):
     emr_id = 68
 
 # define EMR_GDICOMMENT	70
+@register
+class _GDICOMMENT(_EMR_UNKNOWN):
+
+    """Application-specific data - https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-emrgdicomment
+
+    @gdi: Comment"""
+    emr_id = 70
+    typedef = [
+        ('i', 'cbData'),
+        (EMFString(num='cbData', size=1), 'comment'),
+    ]
+
+    def __init__(self, txt=""):
+        _EMR_UNKNOWN.__init__(self)
+        if isinstance(txt, cunicode):
+            self.comment = txt.encode('utf-16le')
+        else:
+            self.comment = txt
+        self.charsize = 1
+        #print(self)
+
 # define EMR_FILLRGN	71
 # define EMR_FRAMERGN	72
 # define EMR_INVERTRGN	73
@@ -970,6 +991,14 @@ class _SETICMMODE(_SETMAPMODE):
 # define EMR_SETICMPROFILEA        112
 # define EMR_SETICMPROFILEW        113
 # define EMR_ALPHABLEND    114
+@register
+class _ALPHABLEND(_EMR_UNKNOWN):
+
+    """AlphaBlend - https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-emralphablend
+
+    @gdi: AlphaBlend"""
+    emr_id = 114
+
 # define EMR_SETLAYOUT     115
 # define EMR_TRANSPARENTBLT        116
 # define EMR_RESERVED_117  117
