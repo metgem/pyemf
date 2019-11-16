@@ -1,3 +1,10 @@
+This is yet another fork to get the original filename of OLE objects embedded
+in Word, if oletools gives you trouble using oleobj.
+
+See https://github.com/decalage2/oletools/wiki for more information.
+
+----------------------------------------------------------------------------
+
 This is a fork of a forked version of pyemf. But I wouldn't bother, just do:
 
 > fig.savefig('myfig.svg')
