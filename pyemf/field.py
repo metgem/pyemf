@@ -415,7 +415,10 @@ class EMFString(Field):
         txt = data[ptr:ptr + size]
         size = _roundn(len(txt), self.pad)
         if self.size == 2:
-            txt = txt.decode('utf-16le')  # Now is a unicode string
+            try:
+                txt = txt.decode('utf-16le')  # Now is a unicode string
+            except Exception as e:
+                print(e)
         if self.debug:
             try:
                 print("str: '%s'" % str(txt))

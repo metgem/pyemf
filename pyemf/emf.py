@@ -26,6 +26,8 @@ from .constants import *
 from .dc import _DC
 from .utils import _normalizeColor
 from . import emr
+from .compat import *
+from .record import _EMR_UNKNOWN
 
 
 class EMF:
@@ -148,6 +150,7 @@ object, they will be overwritten by the records from this file.
                     if iType in emr._emrmap:
                         e = emr._emrmap[iType]()
                     else:
+                        print('Unknown iType', repr(iType))
                         e = _EMR_UNKNOWN()
 
                     e.unserialize(fh, data, iType, nSize)
