@@ -66,8 +66,8 @@ class _HEADER(_EMR_UNKNOWN):
 
     def __init__(self, description=''):
         _EMR_UNKNOWN.__init__(self)
-        print(self)
-        print(self.__class__.format.default)
+        #print(self)
+        #print(self.__class__.format.default)
         # NOTE: rclBounds and rclFrame will be determined at
         # serialize time
 
@@ -82,7 +82,7 @@ class _HEADER(_EMR_UNKNOWN):
         self.rclFrame = [[dc.frame_left, dc.frame_top],
                          [dc.frame_right, dc.frame_bottom]]
 
-        print(self)
+        #print(self)
         if scaleheader:
             self.szlDevice[0] = dc.pixelwidth
             self.szlDevice[1] = dc.pixelheight

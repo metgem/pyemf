@@ -420,7 +420,8 @@ class EMFString(Field):
             try:
                 txt = txt.decode('utf-16le')  # Now is a unicode string
             except Exception as e:
-                print(e)
+                #print(e)
+                pass
         if self.debug:
             try:
                 print("str: '%s'" % str(txt))
