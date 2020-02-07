@@ -1,0 +1,41 @@
+{% set data = load_setup_py_data() %}
+
+package:
+    name: pyemf
+    version: {{ data.get('version') }}
+
+source:
+    path: ../
+
+build:
+    number: 0
+    script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+    build:
+        - python
+        - setuptools
+    run:
+        - python
+
+test:
+    imports:
+        - pyemf
+
+about:
+    home: https://github.com/metgem/pyemf
+    license: GPLv3
+    license_family: GPL
+    license_file: 'LICENSE'
+    summary: 'pyemf is a pure python module that provides bindings for an ECMA-234
+compliant vector graphics library'
+    description: 'pyemf is a pure python module that provides bindings for an ECMA-234
+compliant vector graphics library.  ECMA-234 is the published
+interface for the Windows GDI used in the Microsoft windows
+environment and, more importantly, natively supported by the
+OpenOffice suite of tools.'
+    doc_url: ''
+    dev_url: 'https://github.com/metgem/pyemf'
+
+extra:
+    recipe-maintainers: 'nicolas.elie@cnrs.fr'
